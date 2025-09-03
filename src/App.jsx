@@ -1,12 +1,10 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import axios from 'axios';
-
+import DepartmentManager from './components/DepartmentManager.jsx';
 // --- Configuración de Axios para hablar con el Proxy de Vite ---
 const apiClient = axios.create({
-    // AHORA LAS PETICIONES SE HACEN A LA MISMA URL,
-    // Y VITE SE ENCARGA DE REDIRIGIRLAS A LARAVEL.
-    baseURL: '/',
+    baseURL: 'http://127.0.0.1:8000', // <-- RESTAURA LA URL COMPLETA
     withCredentials: true,
     withXSRFToken: true,
 });
@@ -139,26 +137,44 @@ function GeminiAssistant() { /* ... (El componente se mantiene igual) ... */
     );
 }
 
-function Dashboard() { /* ... (El componente se mantiene igual) ... */ 
+function Dashboard() {
+    // Obtiene los datos de autenticación del contexto global
     const auth = useContext(AuthContext);
     const navigate = useNavigate();
-    const handleLogout = async () => { await auth.logout(); navigate('/login'); };
+
+    // Función para manejar el cierre de sesión
+    const handleLogout = async () => {
+        await auth.logout();
+        navigate('/login');
+    };
+
     return (
         <div className="min-h-screen bg-gray-50">
             <header className="bg-white shadow-sm">
                 <nav className="container mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
                     <h1 className="text-lg sm:text-xl font-bold text-gray-800">Intranet Clínica Támara</h1>
                     <div>
-                        <span className="text-gray-700 mr-2 sm:mr-4 hidden md:inline">Hola, {auth.user?.name}</span>
-                        <button onClick={handleLogout} className="bg-red-500 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-red-600 text-sm sm:text-base">Cerrar Sesión</button>
+                        <span className="text-gray-700 mr-2 sm:mr-4 hidden md:inline">Holi, {auth.user?.name}</span>
+                        <button onClick={handleLogout} className="bg-red-500 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-red-600 text-sm sm:text-base">
+                            Cerrar Sesión
+                        </button>
                     </div>
                 </nav>
             </header>
+            
             <main className="container mx-auto p-4 sm:p-6">
                 <div className="bg-white p-6 md:p-8 rounded-lg shadow">
                     <h2 className="text-2xl font-semibold mb-4">Dashboard</h2>
-                    <p className="text-gray-600">¡Bienvenido al esqueleto funcional del proyecto!</p>
+                    <p className="text-gray-600">¡Bienvenido a la intranet, {auth.user?.name}!</p>
                 </div>
+
+                {/* --- ESTA ES LA LÍNEA MÁS IMPORTANTE --- */}
+                {/* Renderizamos el panel de admin SÓLO si el role_id del usuario es 1 (Admin Global).
+                  La interrogación (?.) es "optional chaining", previene errores si 'auth.user' es nulo.
+                  La comparación '===' es estricta, por eso era importante que 'role_id' fuera un número.
+                */}
+                {auth.user?.role_id === 1 && <DepartmentManager apiClient={apiClient} />}
+
                 <GeminiAssistant />
             </main>
         </div>
