@@ -17,23 +17,34 @@ export default function Layout() {
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(false);
 
-  // Control responsive automático
+  // ✅ USEEFFECT CORREGIDO
   useEffect(() => {
     const checkScreenSize = () => {
       const mobile = window.innerWidth < 1024;
       setIsMobile(mobile);
       
-      // Solo auto-cerrar cuando se cambia a móvil
-      if (mobile && sidebarOpen) {
-        closeSidebar();
-      }
+      // SOLO auto-cerrar en la transición inicial desktop -> móvil
+      // NO cuando el usuario abre manualmente el sidebar
     };
 
     checkScreenSize(); // Ejecutar al cargar
     window.addEventListener('resize', checkScreenSize);
     
     return () => window.removeEventListener('resize', checkScreenSize);
-  }, [sidebarOpen, closeSidebar]);
+  }, []); // ← SIN DEPENDENCIAS PROBLEMÁTICAS
+
+  // ✅ USEEFFECT SEPARADO PARA DETECTAR CAMBIO A MÓVIL
+  useEffect(() => {
+    // Solo cerrar automáticamente cuando se detecta por primera vez que es móvil
+    if (isMobile && window.innerWidth < 1024) {
+      // Pequeño delay para evitar conflictos con toggles manuales
+      const timer = setTimeout(() => {
+        if (isMobile) closeSidebar();
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isMobile]); // Solo escucha cambios en isMobile
 
   // SOLO ADMINISTRADORES VEN "GESTIÓN"
   const adminItems = [
@@ -68,7 +79,7 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* SIDEBAR - Control manual completo */}
+      {/* SIDEBAR */}
       <aside
         className={`fixed inset-y-0 left-0 w-64 bg-white shadow-lg z-50 transform
                    ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
@@ -77,7 +88,6 @@ export default function Layout() {
         {/* Header del Sidebar */}
         <header className="h-16 flex items-center justify-between px-6 bg-blue-600 text-white">
           <h1 className="font-bold">Intranet Tamara</h1>
-          {/* Botón X - Siempre visible y funcional */}
           <button
             onClick={closeSidebar}
             className="p-2 hover:bg-blue-700 rounded transition-colors text-white font-bold"
@@ -172,15 +182,15 @@ export default function Layout() {
         </button>
       </aside>
 
-      {/* CONTENIDO PRINCIPAL - Margen dinámico */}
+      {/* CONTENIDO PRINCIPAL */}
       <div className={`transition-all duration-300 ${sidebarOpen && !isMobile ? 'ml-64' : ''}`}>
         {/* Top bar */}
         <header className="sticky top-0 bg-white shadow-sm border-b border-gray-200 h-16 flex items-center px-6 z-30">
-          {/* Botón hamburguesa - Visible cuando sidebar está cerrado */}
+          {/* BOTÓN HAMBURGUESA - Siempre visible en móvil */}
           <button
             onClick={toggleSidebar}
-            className={`mr-4 p-2 text-gray-500 hover:text-gray-700 rounded transition-colors ${sidebarOpen ? 'hidden' : ''}`}
-            aria-label="Abrir sidebar"
+            className="mr-4 p-2 text-gray-500 hover:text-gray-700 rounded transition-colors lg:hidden"
+            aria-label="Toggle sidebar"
           >
             ☰
           </button>
@@ -192,8 +202,6 @@ export default function Layout() {
           <div className="ml-auto flex items-center space-x-2">
             <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
             <span className="text-sm text-gray-600">Sistema Online</span>
-            
-            {/* Indicador de tamaño de pantalla */}
             <span className="text-xs text-gray-400 ml-2">
               {isMobile ? '📱' : '🖥️'}
             </span>
@@ -206,7 +214,7 @@ export default function Layout() {
         </main>
       </div>
 
-      {/* Overlay - Solo en móvil cuando sidebar está abierto */}
+      {/* Overlay móvil */}
       {sidebarOpen && isMobile && (
         <div
           className="fixed inset-0 bg-black/50 z-40"
