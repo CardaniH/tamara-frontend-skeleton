@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import apiClient from '/src/utils/apiClient.js';  // Ruta absoluta
 
-const DepartmentManager = ({ apiClient }) => {
+const DepartmentManager =() => {
+     console.log('✅ Montando DepartmentManager');
+     console.log('🔧 apiClient al importar:', apiClient);
     const [departments, setDepartments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
