@@ -10,18 +10,18 @@ export const SidebarProvider = ({ children }) => {
   const toggleSidebar = useCallback(() => {
     setSidebarOpen(prev => {
       const newValue = !prev;
-      console.log('Sidebar toggled:', newValue);
+ 
       return newValue;
     });
   }, []);
 
   const closeSidebar = useCallback(() => {
-    console.log('Closing sidebar');
+   ;
     setSidebarOpen(false);
   }, []);
 
   const openSidebar = useCallback(() => {
-    console.log('Opening sidebar');
+ 
     setSidebarOpen(true);
   }, []);
 

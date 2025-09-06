@@ -11,8 +11,13 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         if (token) {
             apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            apiClient.get('/api/user')
-                .then(response => setUser(response.data))
+            // ← CAMBIO: Usar endpoint que carga relaciones
+            apiClient.get('/api/dashboard/stats')
+                .then(response => {
+                    if (response.data.success && response.data.user) {
+                        setUser(response.data.user); // Usuario con relaciones
+                    }
+                })
                 .catch(() => {
                     localStorage.removeItem('token');
                     setToken(null);
@@ -31,7 +36,7 @@ export const AuthProvider = ({ children }) => {
         const newToken = response.data.access_token;
         localStorage.setItem('token', newToken);
         setToken(newToken);
-        setUser(response.data.user);
+        setUser(response.data.user); // Usuario con relaciones desde login
         apiClient.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
     };
 
@@ -45,7 +50,19 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const authValue = { user, login, logout, isLoggedIn: !!user };
+    // ← NUEVA FUNCIÓN: Actualizar usuario desde componentes hijos
+    const updateUser = (newUserData) => {
+        setUser(newUserData);
+    };
+
+    // ← ACTUALIZAR: Incluir updateUser en el contexto
+    const authValue = { 
+        user, 
+        login, 
+        logout, 
+        updateUser, // ← Exponer función de actualización
+        isLoggedIn: !!user 
+    };
 
     return (
         <AuthContext.Provider value={authValue}>
@@ -61,3 +78,4 @@ export const useAuth = () => {
     }
     return context;
 };
+// ← FIN AuthContext.jsx

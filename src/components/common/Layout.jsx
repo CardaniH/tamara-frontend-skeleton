@@ -59,7 +59,7 @@ export default function Layout() {
     },
     { title: "Tareas", path: "/tasks", icon: "✅" },
     { title: "Calendario", path: "/calendar", icon: "📅" },
-    { title: "Documentos", path: "/documents", icon: "📁" },
+    { title: "SharePoint", path: "/documents", icon: "📁" },
     { title: "Usuarios", path: "/users", icon: "👥" },
   ];
 
@@ -67,7 +67,7 @@ export default function Layout() {
     { title: "Dashboard", path: "/dashboard", icon: "📊" },
     { title: "Mis Tareas", path: "/tasks", icon: "✅" },
     { title: "Mi Calendario", path: "/calendar", icon: "📅" },
-    { title: "Documentos", path: "/documents", icon: "📁" },
+    { title: "SharePoint", path: "/documents", icon: "📁" },
   ];
 
   const navItems = user?.role_id === 1 ? adminItems : employeeItems;
@@ -106,7 +106,7 @@ export default function Layout() {
             <div>
               <p className="font-semibold text-gray-900">{user?.name}</p>
               <p className="text-sm text-gray-600">
-                {user?.role_id === 1 ? "Administrador" : "Empleado"}
+                {user?.role?.name || 'N/A'}
               </p>
             </div>
           </div>
@@ -189,8 +189,9 @@ export default function Layout() {
           {/* BOTÓN HAMBURGUESA - Siempre visible en móvil */}
           <button
             onClick={toggleSidebar}
-            className="mr-4 p-2 text-gray-500 hover:text-gray-700 rounded transition-colors lg:hidden"
-            aria-label="Toggle sidebar"
+            className={`mr-4 p-2 text-gray-500 hover:text-gray-700 rounded transition-colors
+           ${isMobile ? '' : (sidebarOpen ? 'hidden' : 'block')}`}
+
           >
             ☰
           </button>
