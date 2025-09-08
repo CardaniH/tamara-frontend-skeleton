@@ -48,26 +48,26 @@ export default function Layout() {
 
   // SOLO ADMINISTRADORES VEN "GESTIÓN"
   const adminItems = [
-    { title: "Dashboard", path: "/dashboard", icon: "📊" },
+    { title: "Dashboard", path: "/dashboard", icon: "" },
     {
       title: "Gestión",
-      icon: "🛠️",
+      icon: "",
       submenu: [
-        { title: "Departamentos", path: "/departments", icon: "🏢" },
-        { title: "Subdepartamentos", path: "/subdepartments", icon: "🏗️" },
+        { title: "Departamentos", path: "/departments", icon: "" },
+        { title: "Subdepartamentos", path: "/subdepartments", icon: "" },
       ],
     },
-    { title: "Tareas", path: "/tasks", icon: "✅" },
-    { title: "Calendario", path: "/calendar", icon: "📅" },
-    { title: "SharePoint", path: "/documents", icon: "📁" },
-    { title: "Usuarios", path: "/users", icon: "👥" },
+    { title: "Tareas", path: "/tasks", icon: "" },
+    { title: "Calendario", path: "/calendar", icon: "" },
+    { title: "SharePoint", path: "/documents", icon: "" },
+    { title: "Usuarios", path: "/users", icon: "" },
   ];
 
   const employeeItems = [
-    { title: "Dashboard", path: "/dashboard", icon: "📊" },
-    { title: "Mis Tareas", path: "/tasks", icon: "✅" },
-    { title: "Mi Calendario", path: "/calendar", icon: "📅" },
-    { title: "SharePoint", path: "/documents", icon: "📁" },
+    { title: "Dashboard", path: "/dashboard", icon: "" },
+    { title: "Mis Tareas", path: "/tasks", icon: "" },
+    { title: "Mi Calendario", path: "/calendar", icon: "" },
+    { title: "SharePoint", path: "/documents", icon: "" },
   ];
 
   const navItems = user?.role_id === 1 ? adminItems : employeeItems;
@@ -178,7 +178,7 @@ export default function Layout() {
           onClick={handleLogout}
           className="absolute bottom-0 left-0 w-full flex items-center px-5 py-3 text-red-600 bg-red-50 hover:bg-red-100 text-sm"
         >
-          🚪 Cerrar sesión
+           Cerrar sesión
         </button>
       </aside>
 
