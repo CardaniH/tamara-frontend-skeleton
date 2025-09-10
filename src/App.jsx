@@ -7,6 +7,8 @@ import Dash from './components/dashboard/Dash';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import DepartmentManager from './components/admin/DepartmentManager';
 import SubdepartmentManager from './components/admin/SubdepartmentManager';
+import SharePointDocuments from './components/sharepoint/SharePointDocuments.jsx';
+
 
 export default function App() {
   return (
@@ -22,7 +24,7 @@ export default function App() {
   <Route path="/subdepartments" element={<SubdepartmentManager />} />
   <Route path="/tasks" element={<div>Tareas - Próximamente</div>} />
   <Route path="/calendar" element={<div>Calendario - Próximamente</div>} />
-  <Route path="/documents" element={<div>Documentos - Próximamente</div>} />
+  <Route path="/documents" element={<SharePointDocuments/>} />
   <Route path="/users" element={<div>Usuarios - Próximamente</div>} />
 </Route>
 

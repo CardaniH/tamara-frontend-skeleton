@@ -51,25 +51,74 @@ const ErrorMessage = ({ message, onRetry }) => (
   </div>
 );
 
+// Indicador de estado de datos en vivo
+const LiveDataIndicator = ({ lastUpdate, isRefreshing, sharePointData, onRefresh }) => (
+  <div className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
+    <div className="flex justify-between items-center">
+      <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
+          <div className={`w-3 h-3 rounded-full ${sharePointData ? 'bg-green-400 animate-pulse' : 'bg-gray-400'}`}></div>
+          <span className="text-sm font-medium text-gray-700">
+            {sharePointData ? 'SharePoint Conectado' : 'Conectando...'}
+          </span>
+          {isRefreshing && (
+            <span className="text-xs text-blue-600">Actualizando datos...</span>
+          )}
+        </div>
+
+        {sharePointData && (
+          <div className="flex items-center space-x-4 text-sm text-gray-600">
+            <span>Documentos: {sharePointData.sharepoint_docs || 0}</span>
+            <span>Sitio: {sharePointData.sharepoint_site_name || 'No conectado'}</span>
+            {lastUpdate && (
+              <span>Actualizado: {lastUpdate.toLocaleTimeString()}</span>
+            )}
+          </div>
+        )}
+      </div>
+
+      <button
+        className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+        onClick={onRefresh}
+        disabled={isRefreshing}
+      >
+        <span>{isRefreshing ? 'Actualizando...' : 'Actualizar'}</span>
+      </button>
+    </div>
+  </div>
+);
+
 export default function Dash() {
   const { user } = useAuth();
-  const [dashboardData, setDashboardData] = useState({});
+  const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [lastUpdate, setLastUpdate] = useState(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = async (isManualRefresh = false) => {
     try {
-      setLoading(true);
+      if (isManualRefresh) {
+        setIsRefreshing(true);
+      } else if (!dashboardData) {
+        setLoading(true);
+      }
+      
       setError(null);
       
       const response = await apiClient.get('/api/dashboard/stats');
       
       if (response.data.success) {
         setDashboardData(response.data.data);
+        setLastUpdate(new Date());
+        
+        // Log para debugging - datos SharePoint
+        console.log('Dashboard Data Updated:', {
+          timestamp: new Date().toLocaleTimeString(),
+          sharepoint_docs: response.data.data.sharepoint_docs,
+          new_docs_week: response.data.data.new_docs_week,
+          sharepoint_site: response.data.data.sharepoint_site_name
+        });
       } else {
         setError(response.data.message || 'Error desconocido');
       }
@@ -78,15 +127,35 @@ export default function Dash() {
       setError(error.response?.data?.message || 'Error de conexión');
     } finally {
       setLoading(false);
+      setIsRefreshing(false);
     }
+  };
+
+  // Fetch inicial y polling automático
+  useEffect(() => {
+    fetchDashboardData();
+
+    // Polling cada 30 segundos
+    const interval = setInterval(() => {
+      console.log('Auto-refresh dashboard data...');
+      fetchDashboardData();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Función de refresh manual
+  const handleRefresh = () => {
+    fetchDashboardData(true);
   };
 
   // Memoizar las props comunes para evitar re-renders innecesarios
   const commonProps = useMemo(() => ({
     user,
     data: dashboardData,
-    onRefresh: fetchDashboardData
-  }), [user, dashboardData]);
+    onRefresh: handleRefresh,
+    lastUpdate
+  }), [user, dashboardData, lastUpdate]);
 
   // Obtener fecha y hora actuales
   const currentDate = useMemo(() => {
@@ -107,15 +176,15 @@ export default function Dash() {
 
   // Renderizar dashboard específico por rol
   const renderDashboardByRole = () => {
-    if (loading) {
-      return <LoadingSpinner message="Cargando datos del dashboard..." />;
+    if (loading && !dashboardData) {
+      return <LoadingSpinner message="Cargando datos de SharePoint..." />;
     }
 
-    if (error) {
+    if (error && !dashboardData) {
       return (
         <ErrorMessage 
           message={error} 
-          onRetry={fetchDashboardData}
+          onRetry={() => fetchDashboardData(true)}
         />
       );
     }
@@ -148,31 +217,43 @@ export default function Dash() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header Global Mejorado */}
-      {/* Header Global Simplificado */}
-<div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6 rounded-lg shadow-lg">
-  <div className="flex items-center justify-between">
-    <div>
-      <h1 className="text-3xl font-bold">
-        ¡Bienvenido, {user?.name}!
-      </h1>
-    </div>
-    <div className="text-right">
-      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
-        <p className="text-blue-100 text-sm">
-          {currentDate.date}
-        </p>
-        <p className="text-xs text-blue-200 mt-1">
-          {currentDate.time}
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Indicador de datos en vivo */}
+      <LiveDataIndicator 
+        lastUpdate={lastUpdate}
+        isRefreshing={isRefreshing}
+        sharePointData={dashboardData}
+        onRefresh={handleRefresh}
+      />
 
-      {/* Dashboard específico por rol */}
-      {renderDashboardByRole()}
+      <div className="space-y-6 p-6">
+        {/* Header Global Simplificado */}
+        <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6 rounded-lg shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">
+                Bienvenido, {user?.name}
+              </h1>
+            </div>
+            <div className="text-right">
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
+                <p className="text-blue-100 text-sm">
+                  {currentDate.date}
+                </p>
+                <p className="text-xs text-blue-200 mt-1">
+                  {currentDate.time}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Dashboard específico por rol */}
+        {renderDashboardByRole()}
+      </div>
+
+      {/* Footer con información de sincronización */}
+     
     </div>
   );
 }
