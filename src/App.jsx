@@ -8,7 +8,8 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import DepartmentManager from './components/admin/DepartmentManager';
 import SubdepartmentManager from './components/admin/SubdepartmentManager';
 import SharePointDocuments from './components/sharepoint/SharePointDocuments.jsx';
-
+import ProjectsManager from './components/projects/ProjectsManager.jsx';
+import ProjectDetails from './components/projects/ProjectDetails';
 
 export default function App() {
   return (
@@ -22,11 +23,12 @@ export default function App() {
   <Route path="/dashboard" element={<Dash />} />
   <Route path="/departments" element={<DepartmentManager />} />
   <Route path="/subdepartments" element={<SubdepartmentManager />} />
-  <Route path="/tasks" element={<div>Tareas - Próximamente</div>} />
+  <Route path="/projects" element={<ProjectsManager/>} />
   <Route path="/calendar" element={<div>Calendario - Próximamente</div>} />
   <Route path="/documents" element={<SharePointDocuments/>} />
-  <Route path="/users" element={<div>Usuarios - Próximamente</div>} />
-</Route>
+  <Route path="/users" element={<div>Usuarios - Próximamente</div>} /></Route>
+  <Route path="/projects/:projectId" element={<ProjectDetails />} />
+
 
 
           {/* login público */}

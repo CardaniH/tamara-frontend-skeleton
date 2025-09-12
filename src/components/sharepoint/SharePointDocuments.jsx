@@ -37,6 +37,13 @@ const SharePointDocuments = () => {
         loadDocuments(1, true);
     };
 
+   const handlePageChange = (page) => {
+  if (page < 1 || loading) return;
+  searchMode && searchQuery
+    ? searchDocuments(searchQuery, page)
+    : loadDocuments(page);
+};
+
     const formatFileSize = (bytes) => {
         if (!bytes) return '0 B';
         const sizes = ['B', 'KB', 'MB', 'GB'];
@@ -55,115 +62,116 @@ const SharePointDocuments = () => {
         });
     };
 
-   const getFileIcon = (extension) => {
-    const iconClass = "w-6 h-6";
-    const icons = {
-        pdf: (
-            <svg className={`${iconClass} text-red-500`} fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+    const getFileIcon = (extension) => {
+        const iconClass = "w-6 h-6";
+        const icons = {
+            pdf: (
+                <svg className={`${iconClass} text-red-500`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+                </svg>
+            ),
+            doc: (
+                <svg className={`${iconClass} text-blue-600`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+                </svg>
+            ),
+            docx: (
+                <svg className={`${iconClass} text-blue-600`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+                </svg>
+            ),
+            xls: (
+                <svg className={`${iconClass} text-emerald-600`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+                </svg>
+            ),
+            xlsx: (
+                <svg className={`${iconClass} text-emerald-600`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+                </svg>
+            ),
+            ppt: (
+                <svg className={`${iconClass} text-orange-600`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+                </svg>
+            ),
+            pptx: (
+                <svg className={`${iconClass} text-orange-600`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+                </svg>
+            ),
+            txt: (
+                <svg className={`${iconClass} text-slate-600`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+                </svg>
+            ),
+            jpg: (
+                <svg className={`${iconClass} text-purple-600`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                </svg>
+            ),
+            jpeg: (
+                <svg className={`${iconClass} text-purple-600`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                </svg>
+            ),
+            png: (
+                <svg className={`${iconClass} text-purple-600`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                </svg>
+            ),
+            gif: (
+                <svg className={`${iconClass} text-purple-600`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                </svg>
+            ),
+            // VIDEOS
+            mp4: (
+                <svg className={`${iconClass} text-rose-600`} fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                </svg>
+            ),
+            mov: (
+                <svg className={`${iconClass} text-rose-600`} fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                </svg>
+            ),
+            avi: (
+                <svg className={`${iconClass} text-rose-600`} fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                </svg>
+            ),
+            mkv: (
+                <svg className={`${iconClass} text-rose-600`} fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                </svg>
+            ),
+            // ARCHIVOS COMPRIMIDOS
+            zip: (
+                <svg className={`${iconClass} text-amber-600`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-5L9 2H4z" clipRule="evenodd" />
+                    <path d="M8 6h1v1H8V6zM9 8H8v1h1V8zM8 10h1v1H8v-1zM9 12H8v1h1v-1z" />
+                </svg>
+            ),
+            rar: (
+                <svg className={`${iconClass} text-amber-600`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-5L9 2H4z" clipRule="evenodd" />
+                    <path d="M8 6h1v1H8V6zM9 8H8v1h1V8zM8 10h1v1H8v-1zM9 12H8v1h1v-1z" />
+                </svg>
+            ),
+            '7z': (
+                <svg className={`${iconClass} text-amber-600`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-5L9 2H4z" clipRule="evenodd" />
+                    <path d="M8 6h1v1H8V6zM9 8H8v1h1V8zM8 10h1v1H8v-1zM9 12H8v1h1v-1z" />
+                </svg>
+            ),
+        };
+        return icons[extension?.toLowerCase()] || (
+            <svg className={`${iconClass} text-slate-500`} fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z" clipRule="evenodd" />
             </svg>
-        ),
-        doc: (
-            <svg className={`${iconClass} text-blue-600`} fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
-            </svg>
-        ),
-        docx: (
-            <svg className={`${iconClass} text-blue-600`} fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
-            </svg>
-        ),
-        xls: (
-            <svg className={`${iconClass} text-emerald-600`} fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
-            </svg>
-        ),
-        xlsx: (
-            <svg className={`${iconClass} text-emerald-600`} fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
-            </svg>
-        ),
-        ppt: (
-            <svg className={`${iconClass} text-orange-600`} fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
-            </svg>
-        ),
-        pptx: (
-            <svg className={`${iconClass} text-orange-600`} fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
-            </svg>
-        ),
-        txt: (
-            <svg className={`${iconClass} text-slate-600`} fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
-            </svg>
-        ),
-        jpg: (
-            <svg className={`${iconClass} text-purple-600`} fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-            </svg>
-        ),
-        jpeg: (
-            <svg className={`${iconClass} text-purple-600`} fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-            </svg>
-        ),
-        png: (
-            <svg className={`${iconClass} text-purple-600`} fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-            </svg>
-        ),
-        gif: (
-            <svg className={`${iconClass} text-purple-600`} fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-            </svg>
-        ),
-        // NUEVOS ICONOS MEJORADOS
-        mp4: (
-            <svg className={`${iconClass} text-rose-600`} fill="currentColor" viewBox="0 0 20 20">
-                <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
-            </svg>
-        ),
-        mov: (
-            <svg className={`${iconClass} text-rose-600`} fill="currentColor" viewBox="0 0 20 20">
-                <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
-            </svg>
-        ),
-        avi: (
-            <svg className={`${iconClass} text-rose-600`} fill="currentColor" viewBox="0 0 20 20">
-                <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
-            </svg>
-        ),
-        mkv: (
-            <svg className={`${iconClass} text-rose-600`} fill="currentColor" viewBox="0 0 20 20">
-                <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
-            </svg>
-        ),
-        zip: (
-            <svg className={`${iconClass} text-amber-600`} fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-5L9 2H4z" clipRule="evenodd" />
-                <path d="M8 6h1v1H8V6zM9 8H8v1h1V8zM8 10h1v1H8v-1zM9 12H8v1h1v-1z" />
-            </svg>
-        ),
-        rar: (
-            <svg className={`${iconClass} text-amber-600`} fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-5L9 2H4z" clipRule="evenodd" />
-                <path d="M8 6h1v1H8V6zM9 8H8v1h1V8zM8 10h1v1H8v-1zM9 12H8v1h1v-1z" />
-            </svg>
-        ),
-        '7z': (
-            <svg className={`${iconClass} text-amber-600`} fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-5L9 2H4z" clipRule="evenodd" />
-                <path d="M8 6h1v1H8V6zM9 8H8v1h1V8zM8 10h1v1H8v-1zM9 12H8v1h1v-1z" />
-            </svg>
-        ),
+        );
     };
-    return icons[extension?.toLowerCase()] || (
-        <svg className={`${iconClass} text-slate-500`} fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z" clipRule="evenodd" />
-        </svg>
-    );
-};
 
     if (loading && documents.length === 0) {
         return (
@@ -360,6 +368,16 @@ const SharePointDocuments = () => {
                                         <option value="xlsx">Excel</option>
                                         <option value="pptx">PowerPoint</option>
                                         <option value="txt">Texto</option>
+                                        <option value="mp4">Video MP4</option>
+                                        <option value="mov">Video MOV</option>
+                                        <option value="avi">Video AVI</option>
+                                        <option value="mkv">Video MKV</option>
+                                        <option value="zip">Archivo ZIP</option>
+                                        <option value="rar">Archivo RAR</option>
+                                        <option value="7z">Archivo 7Z</option>
+                                        <option value="jpg">Imagen JPG</option>
+                                        <option value="png">Imagen PNG</option>
+                                        <option value="gif">Imagen GIF</option>
                                     </select>
                                 </div>
 
@@ -572,97 +590,97 @@ const SharePointDocuments = () => {
                             </table>
                         </div>
                     )}
-
-                    {/* Paginación */}
-                    {pagination.last_page > 1 && (
-                        <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-slate-200">
-                            <div className="flex-1 flex justify-between sm:hidden">
-                                <button
-                                    onClick={() => loadDocuments(pagination.current_page - 1)}
-                                    disabled={pagination.current_page === 1 || loading}
-                                    className="relative inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                                    </svg>
-                                    Anterior
-                                </button>
-                                <button
-                                    onClick={() => loadDocuments(pagination.current_page + 1)}
-                                    disabled={pagination.current_page === pagination.last_page || loading}
-                                    className="ml-3 relative inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    Siguiente
-                                    <svg className="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                                    </svg>
-                                </button>
-                            </div>
-                            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                                <div>
-                                    <p className="text-sm text-slate-700">
-                                        Mostrando <span className="font-medium">{pagination.from || 1}</span> a{' '}
-                                        <span className="font-medium">{pagination.to || documents.length}</span> de{' '}
-                                        <span className="font-medium">{pagination.total || documents.length}</span> resultados
-                                    </p>
-                                </div>
-                                <div>
-                                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                                        {/* Botón anterior */}
-                                        <button
-                                            onClick={() => loadDocuments(pagination.current_page - 1)}
-                                            disabled={pagination.current_page === 1 || loading}
-                                            className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-slate-300 bg-white text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50"
-                                        >
-                                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                                            </svg>
-                                        </button>
-                                        
-                                        {/* Números de página */}
-                                        {Array.from({ length: Math.min(pagination.last_page, 5) }, (_, i) => {
-                                            let page;
-                                            if (pagination.last_page <= 5) {
-                                                page = i + 1;
-                                            } else if (pagination.current_page <= 3) {
-                                                page = i + 1;
-                                            } else if (pagination.current_page >= pagination.last_page - 2) {
-                                                page = pagination.last_page - 4 + i;
-                                            } else {
-                                                page = pagination.current_page - 2 + i;
-                                            }
-                                            
-                                            return (
-                                                <button
-                                                    key={page}
-                                                    onClick={() => loadDocuments(page)}
-                                                    disabled={loading}
-                                                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                                                        page === pagination.current_page
-                                                            ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                                                            : 'bg-white border-slate-300 text-slate-500 hover:bg-slate-50'
-                                                    } disabled:opacity-50`}
-                                                >
-                                                    {page}
-                                                </button>
-                                            );
-                                        })}
-                                        
-                                        {/* Botón siguiente */}
-                                        <button
-                                            onClick={() => loadDocuments(pagination.current_page + 1)}
-                                            disabled={pagination.current_page === pagination.last_page || loading}
-                                            className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-slate-300 bg-white text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50"
-                                        >
-                                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                                            </svg>
-                                        </button>
-                                    </nav>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+{/* Paginación - VERSIÓN MÁS ROBUSTA */}
+{((pagination && pagination.last_page > 1) || (documents.length > 0 && searchMode)) && (
+    <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-slate-200">
+        <div className="flex-1 flex justify-between sm:hidden">
+            <button
+                onClick={() => handlePageChange(Math.max(1, (pagination?.current_page || 1) - 1))}
+                disabled={(pagination?.current_page || 1) === 1 || loading}
+                className="relative inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                Anterior
+            </button>
+            <button
+                onClick={() => handlePageChange((pagination?.current_page || 1) + 1)}
+                disabled={(pagination?.current_page || 1) === (pagination?.last_page || 1) || loading}
+                className="ml-3 relative inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                Siguiente
+                <svg className="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                </svg>
+            </button>
+        </div>
+        <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+                <p className="text-sm text-slate-700">
+                    Mostrando <span className="font-medium">{pagination?.from || 1}</span> a{' '}
+                    <span className="font-medium">{pagination?.to || documents.length}</span> de{' '}
+                    <span className="font-medium">{pagination?.total || documents.length}</span> resultados
+                    {searchMode && <span className="text-blue-600 ml-2">(Búsqueda activa)</span>}
+                </p>
+            </div>
+            <div>
+                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                    {/* Botón anterior */}
+                    <button
+                        onClick={() => handlePageChange(Math.max(1, (pagination?.current_page || 1) - 1))}
+                        disabled={(pagination?.current_page || 1) === 1 || loading}
+                        className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-slate-300 bg-white text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50"
+                    >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                    </button>
+                    
+                    {/* Números de página */}
+                    {pagination && pagination.last_page > 1 && Array.from({ length: Math.min(pagination.last_page, 5) }, (_, i) => {
+                        let page;
+                        if (pagination.last_page <= 5) {
+                            page = i + 1;
+                        } else if (pagination.current_page <= 3) {
+                            page = i + 1;
+                        } else if (pagination.current_page >= pagination.last_page - 2) {
+                            page = pagination.last_page - 4 + i;
+                        } else {
+                            page = pagination.current_page - 2 + i;
+                        }
+                        
+                        return (
+                            <button
+                                key={page}
+                                onClick={() => handlePageChange(page)}
+                                disabled={loading}
+                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                                    page === pagination.current_page
+                                        ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                                        : 'bg-white border-slate-300 text-slate-500 hover:bg-slate-50'
+                                } disabled:opacity-50`}
+                            >
+                                {page}
+                            </button>
+                        );
+                    })}
+                    
+                    {/* Botón siguiente */}
+                    <button
+                        onClick={() => handlePageChange((pagination?.current_page || 1) + 1)}
+                        disabled={(pagination?.current_page || 1) === (pagination?.last_page || 1) || loading}
+                        className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-slate-300 bg-white text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50"
+                    >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                        </svg>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </div>
+)}
                 </div>
             </div>
         </div>

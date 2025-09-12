@@ -57,7 +57,7 @@ export default function Layout() {
         { title: "Subdepartamentos", path: "/subdepartments", icon: "" },
       ],
     },
-    { title: "Tareas", path: "/tasks", icon: "" },
+    { title: "Proyectos", path: "/projects", icon: "" },
     { title: "Calendario", path: "/calendar", icon: "" },
     { title: "SharePoint", path: "/documents", icon: "" },
     { title: "Usuarios", path: "/users", icon: "" },
@@ -65,7 +65,7 @@ export default function Layout() {
 
   const employeeItems = [
     { title: "Dashboard", path: "/dashboard", icon: "" },
-    { title: "Mis Tareas", path: "/tasks", icon: "" },
+    { title: "Proyectos", path: "/projects", icon: "" },
     { title: "Mi Calendario", path: "/calendar", icon: "" },
     { title: "SharePoint", path: "/documents", icon: "" },
   ];
